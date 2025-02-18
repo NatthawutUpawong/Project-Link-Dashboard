@@ -1,0 +1,23 @@
+{
+  "name": "Project-Link-Dashboard",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "lint:fix": "eslint --fix .",
+    "lint": "eslint .",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@dotenvx/dotenvx": "^1.36.0",
+    "@hono/node-server": "^1.13.8",
+    "hono": "^4.7.1"
+  },
+  "devDependencies": {
+    "@antfu/eslint-config": "^4.2.1",
+    "@types/node": "^20.11.17",
+    "eslint": "^9.20.1",
+    "eslint-plugin-perfectionist": "^4.9.0",
+    "tsx": "^4.7.1",
+    "typescript": "^5.7.3"
+  }
+}
