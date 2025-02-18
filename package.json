@@ -5,18 +5,28 @@
     "dev": "tsx watch src/index.ts",
     "lint:fix": "eslint --fix .",
     "lint": "eslint .",
-    "build": "tsc"
+    "build": "tsc",
+    "prisma:generate": "prisma generate",
+    "prisma:push": "prisma db push",
+    "prisma:pull": "prisma db pull",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:migrate:deploy": "prisma migrate deploy",
+    "prisma:studio": "prisma studio",
+    "prisma:reset": "prisma migrate reset"
   },
   "dependencies": {
     "@dotenvx/dotenvx": "^1.36.0",
     "@hono/node-server": "^1.13.8",
+    "@prisma/client": "6.3.1",
+    "effect": "^3.13.1",
     "hono": "^4.7.1"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^4.2.1",
-    "@types/node": "^20.11.17",
+    "@types/node": "^20.17.19",
     "eslint": "^9.20.1",
     "eslint-plugin-perfectionist": "^4.9.0",
+    "prisma": "^6.3.1",
     "tsx": "^4.7.1",
     "typescript": "^5.7.3"
   }
