@@ -5,7 +5,7 @@ import * as ProjectSchema from "./project.js"
 
 export const Schema = S.Struct({
   ...LinkSchema.Schema.fields,
-  links: S.Array(ProjectSchema.Schema),
+  link: S.Array(ProjectSchema.Schema),
 
 })
 
