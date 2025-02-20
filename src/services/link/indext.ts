@@ -17,17 +17,14 @@ export class LinkServiceContext extends Context.Tag("service/link")<LinkServiceC
             Effect.withSpan("find-many.link.service"),
           ),
           findOneById: id => repo.findByIdWithRelations(id).pipe(
-            Effect.withSpan("find-all-by-id.user.service"),
+            Effect.withSpan("find-all-by-id.link.service"),
           ),
-          // findOneById: id => repo.findById(id).pipe(
-          //   Effect.withSpan("find-by-id.user.service"),
-          // ),
-          // removeById: id => repo.remove(id).pipe(
-          //   Effect.withSpan("remove-by-id.service")
-          // ),
-          // update: (id, data) => repo.update(id, data).pipe(
-          //   Effect.withSpan("update.user.service"),
-          // ),
+          remove: id => repo.remove(id).pipe(
+            Effect.withSpan("remove-by-id.service"),
+          ),
+          update: (id, data) => repo.update(id, data).pipe(
+            Effect.withSpan("update.link.service"),
+          ),
         } satisfies LinkService
       }),
     ),

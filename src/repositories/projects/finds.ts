@@ -23,13 +23,17 @@ export function findManyWithRelations(prismaClient: PrismaClient): ProjectReposi
     catch: Errors.FindManyProjectError.new(),
     try: () => prismaClient.project.findMany({
       include: {
-        link: true
+        // link: true,
+        link: {
+          where: { deletedAt: null },
+        },
       },
       where: {
         deletedAt: null,
       },
     }),
   }).pipe(
+    // Effect.tap(d => console.log(d)),
     Effect.andThen(Helpers.fromObjectToSchema(ProjectWithRelationsSchema.SchemaArray)),
     Effect.withSpan("find-many.projects.repository"),
   )
@@ -40,7 +44,9 @@ export function findByIdWithRelations(prismaClient: PrismaClient): ProjectReposi
     catch: Errors.FindProjectByIdError.new(),
     try: () => prismaClient.project.findUnique({
       include: {
-        link: true,
+        link: {
+          where: { deletedAt: null },
+        },
       },
       where: {
         deletedAt: null,

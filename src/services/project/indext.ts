@@ -19,6 +19,12 @@ export class ProjectServiceContext extends Context.Tag("service/Project")<Projec
           findOneById: id => repo.findByIdWithRelations(id).pipe(
             Effect.withSpan("find-all-by-id.project.service"),
           ),
+          removeById: id => repo.hardRemove(id).pipe(
+            Effect.withSpan("remove-by-id.service"),
+          ),
+          update: (id, data) => repo.update(id, data).pipe(
+            Effect.withSpan("update.user.service"),
+          ),
           // findallById: id => repo.findallById(id).pipe(
           //   Effect.withSpan("find-all-by-id.user.service"),
           // ),
@@ -30,12 +36,6 @@ export class ProjectServiceContext extends Context.Tag("service/Project")<Projec
           // ),
           // findOneById: id => repo.findById(id).pipe(
           //   Effect.withSpan("find-by-id.user.service"),
-          // ),
-          // removeById: id => repo.remove(id).pipe(
-          //   Effect.withSpan("remove-by-id.service")
-          // ),
-          // update: (id, data) => repo.update(id, data).pipe(
-          //   Effect.withSpan("update.user.service"),
           // ),
         } satisfies ProjectService
       }),

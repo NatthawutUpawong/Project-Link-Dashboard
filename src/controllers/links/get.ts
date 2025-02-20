@@ -3,7 +3,7 @@ import * as S from "effect/Schema"
 import { Hono } from "hono"
 import { describeRoute } from "hono-openapi"
 import { resolver, validator } from "hono-openapi/effect"
-import { ServicesRuntime } from "../../runtime/indext.js"
+import { ServicesRuntime } from "../../runtime/index.js"
 import { Branded, Helpers, LinkWithRelationsSchema } from "../../schema/index.js"
 import { LinkServiceContext } from "../../services/link/indext.js"
 // import * as Errors from "../../types/error/link-errors.js"
@@ -35,6 +35,7 @@ const getByIdDocs = describeRoute({
 })
 
 const getManyResponseSchema = S.Array(LinkWithRelationsSchema.Schema.omit("deletedAt"))
+
 
 const getManyDocs = describeRoute({
   responses: {

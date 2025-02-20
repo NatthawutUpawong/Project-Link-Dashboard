@@ -5,7 +5,7 @@ import * as ProjectSchema from "./project.js"
 
 export const Schema = S.Struct({
   ...LinkSchema.Schema.fields,
-  link: S.Array(ProjectSchema.Schema),
+  project: ProjectSchema.Schema.omit("deletedAt"),
 
 })
 

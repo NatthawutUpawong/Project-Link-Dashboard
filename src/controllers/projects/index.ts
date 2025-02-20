@@ -1,8 +1,8 @@
 import { Hono } from "hono"
-// import * as EmployeeDeleteRoutes from "./delete.js"
+import * as ProjectDeleteRoutes from "./delete.js"
 import * as ProjectGetRoutes from "./get.js"
 import * as ProjectPostRoutes from "./post.js"
-// import * as EmployeePutRoutes from "./put.js"
+import * as ProjectPutRoutes from "./put.js"
 
 export function setupProjectRoutes() {
   const app = new Hono()
@@ -11,9 +11,9 @@ export function setupProjectRoutes() {
 
   app.route("/", ProjectGetRoutes.setupProjectGetRoutes())
 
-  // app.route("/", EmployeePutRoutes.setupEmployeePutRoutes())
+  app.route("/", ProjectPutRoutes.setupProjectPutRoutes())
 
-  // app.route("/", EmployeeDeleteRoutes.setupRoutes())
+  app.route("/", ProjectDeleteRoutes.setupProjectDeleteRoutes())
 
   return app
 }

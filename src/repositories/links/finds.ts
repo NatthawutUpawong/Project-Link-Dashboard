@@ -27,11 +27,17 @@ export function findManyWithRelations(prismaClient: PrismaClient): LinkRepositor
       },
       where: {
         deletedAt: null,
+        project: {
+          is: { deletedAt: null },
+        },
       },
     }),
   }).pipe(
+    // Effect.tap(d => console.log(d)),
     Effect.andThen(Helpers.fromObjectToSchema(LinkWithRelationsSchema.SchemaArray)),
+    // Effect.tap(d => console.log(d)),
     Effect.withSpan("find-many.link.repository"),
+
   )
 }
 
@@ -45,9 +51,13 @@ export function findByIdWithRelations(prismaClient: PrismaClient): LinkRepositor
       where: {
         deletedAt: null,
         id,
+        project: {
+          is: { deletedAt: null },
+        },
       },
     }),
   }).pipe(
+    // Effect.tap(d => console.log(d)),
     Effect.andThen(Effect.fromNullable),
     Effect.andThen(Helpers.fromObjectToSchema(LinkWithRelationsSchema.Schema)),
     Effect.withSpan("find-by-id-with-relations.link.repository"),

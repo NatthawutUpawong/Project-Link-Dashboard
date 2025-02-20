@@ -26,5 +26,9 @@ export class RemoveLinkError extends Data.TaggedError("RemoveLinkError")<ErrorMs
   static new = createErrorFactory(this)
 }
 
+export class IdLinkAlreadyExitError extends Data.TaggedError("IdLinkAlreadyExitError")<ErrorMsg> {
+  static new = createErrorFactory(this)
+}
+
 
 

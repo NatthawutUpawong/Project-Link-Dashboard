@@ -13,10 +13,10 @@ export type ProjectRepository = {
   findByIdWithRelations: (id: Branded.ProjectId) => Effect.Effect<ProjectWithRelationsSchema.ProjectWithRelations, Errors.FindProjectByIdError | ParseError | NoSuchElementException>
   findMany: () => Effect.Effect<ProjectSchema.ProjectArray, Errors.FindManyProjectError>
   findManyWithRelations: () => Effect.Effect<ProjectWithRelationsSchema.ProjectWithRelationsArray, Errors.FindManyProjectError>
-  // update: (id: Branded.ProjectId, data: ProjectSchema.UpdateProjectEncoded) => Effect.Effect<Project, Errors.UpdateProjectError | ParseError>
-  // updatePartial: (id: Branded.ProjectId, data: Partial<ProjectSchema.UpdateProjectEncoded>) => Effect.Effect<Project, Errors.UpdateProjectError>
-  // remove: (id: Branded.ProjectId) => Effect.Effect<Project, Errors.RemoveProjectError>
-  // hardRemove: (id: Branded.ProjectId) => Effect.Effect<Project, Errors.RemoveProjectError>
+  update: (id: Branded.ProjectId, data: ProjectSchema.UpdateProjectEncoded) => Effect.Effect<Project, Errors.UpdateProjectError | ParseError>
+  updatePartial: (id: Branded.ProjectId, data: Partial<ProjectSchema.UpdateProjectEncoded>) => Effect.Effect<Project, Errors.UpdateProjectError>
+  remove: (id: Branded.ProjectId) => Effect.Effect<Project, Errors.RemoveProjectError>
+  hardRemove: (id: Branded.ProjectId) => Effect.Effect<Project, Errors.RemoveProjectError>
 }
 
 // ParseError คือ Parse Effect Schema ไม่ผ่าน

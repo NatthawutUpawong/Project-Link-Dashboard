@@ -4,8 +4,8 @@ import { Context, Effect, Layer } from "effect"
 import PrismaClientContext from "../prisma.js"
 import * as Creates from "./creates.js"
 import * as Finds from "./finds.js"
-// import * as Removes from "./removes.js"
-// import * as Updates from "./updates.js"
+import * as Removes from "./removes.js"
+import * as Updates from "./updates.js"
 
 function initLinkRepository(prismaClient: PrismaClient): Types.LinkRepository {
   return {
@@ -14,12 +14,10 @@ function initLinkRepository(prismaClient: PrismaClient): Types.LinkRepository {
     findByIdWithRelations: Finds.findByIdWithRelations(prismaClient),
     findMany: Finds.findMany(prismaClient),
     findManyWithRelations: Finds.findManyWithRelations(prismaClient),
-    // findById: Finds.findById(prismaClient,),
-    // findByUsername: Finds.findByusername(prismaClient),
-    // hardRemove: Removes.hardRemoveById(prismaClient),
-    // remove: Removes.remove(prismaClient),
-    // update: Updates.update(prismaClient),
-    // updatePartial: Updates.updatePartial(prismaClient),
+    hardRemove: Removes.hardRemoveById(prismaClient),
+    remove: Removes.remove(prismaClient), 
+    update: Updates.update(prismaClient),
+    updatePartial: Updates.updatePartial(prismaClient),
   }
 }
 

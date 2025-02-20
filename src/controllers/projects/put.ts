@@ -4,13 +4,13 @@ import { Hono } from "hono"
 import * as honoOpenapi from "hono-openapi"
 import { resolver, validator } from "hono-openapi/effect"
 import { ServicesRuntime } from "../../runtime/index.js"
-import { Helpers, ProjectSchema } from "../../schema/index.js"
+import { Branded, Helpers, ProjectSchema } from "../../schema/index.js"
 import { ProjectServiceContext } from "../../services/project/indext.js"
-// import * as Errors from "../../types/error/project-errors.js"
+import * as Errors from "../../types/error/project-errors.js"
 
 const responseSchema = ProjectSchema.Schema.omit("deletedAt")
 
-const postDocs = honoOpenapi.describeRoute({
+const putDocs = honoOpenapi.describeRoute({
   responses: {
     201: {
       content: {
@@ -34,29 +34,39 @@ const postDocs = honoOpenapi.describeRoute({
   tags: ["Project"],
 })
 
-const validateRequestBody = validator("json", ProjectSchema.CreateSchema)
+const validateRequestBody = validator("json", ProjectSchema.UpdateSchema)
+const validateUpdateParam = validator("param", S.Struct({
+  ProjectId: Branded.ProjectIdFromString,
+}))
 
-export function setupProjectPostRoutes() {
+export function setupProjectPutRoutes() {
   const app = new Hono()
 
-  app.post("/", postDocs, validateRequestBody, async (c) => {
+  app.put("/:ProjectId", putDocs, validateRequestBody, validateUpdateParam, async (c) => {
     const body = c.req.valid("json")
+    const { ProjectId } = c.req.valid("param")
 
     const parseResponse = Helpers.fromObjectToSchemaEffect(responseSchema)
 
     const programs = Effect.all({
       projectServices: ProjectServiceContext,
     }).pipe(
-      Effect.tap(() => Effect.log("Create starting")),
-
-      Effect.andThen(({ projectServices }) => projectServices.create(body)),
+      Effect.tap(() => Effect.log("Update starting")),
+      Effect.andThen(b => b),
+      Effect.tap(({ projectServices }) => projectServices.findOneById(ProjectId).pipe(
+        Effect.catchTag("NoSuchElementException", () =>
+          Effect.fail(Errors.FindProjectByIdError.new(`Not found Id: ${ProjectId}`)())),
+      )),
+      Effect.andThen(({ projectServices }) => projectServices.update(ProjectId, body)),
 
       Effect.andThen(parseResponse),
       Effect.andThen(data => c.json(data, 201)),
       Effect.catchTags({
-        CreateProjectError: e => Effect.succeed(c.json({ message: e.msg }, 500)),
+        FindProjectByIdError: e => Effect.succeed(c.json({ message: e.msg }, 404)),
+        ParseError: () => Effect.succeed(c.json({ messgae: "Parse error " }, 500)),
+        UpdateProjectError: () => Effect.succeed(c.json({ message: "update failed" }, 500)),
       }),
-      Effect.withSpan("POST /.project.controller"),
+      Effect.withSpan("PUT /.project.controller"),
     )
 
     const result = await ServicesRuntime.runPromise(programs)

@@ -3,9 +3,10 @@ import * as S from "effect/Schema"
 import { Hono } from "hono"
 import * as honoOpenapi from "hono-openapi"
 import { resolver, validator } from "hono-openapi/effect"
-import { ServicesRuntime } from "../../runtime/indext.js"
+import { ServicesRuntime } from "../../runtime/index.js"
 import { Helpers, LinkSchema } from "../../schema/index.js"
 import { LinkServiceContext } from "../../services/link/indext.js"
+import { ProjectServiceContext } from "../../services/project/indext.js"
 // import * as Errors from "../../types/error/project-errors.js"
 
 const responseSchema = LinkSchema.Schema.omit("deletedAt")
@@ -46,10 +47,11 @@ export function setupLinkPostRoutes() {
 
     const programs = Effect.all({
       linkServices: LinkServiceContext,
+      projectServices: ProjectServiceContext,
     }).pipe(
       Effect.tap(() => Effect.log("Create starting")),
       Effect.andThen(b => b),
-
+      Effect.tap(({ projectServices }) => projectServices.findOneById(body.projectId)),
       Effect.andThen(({ linkServices }) => linkServices.create(body)),
       Effect.andThen(b => b),
 
@@ -58,7 +60,10 @@ export function setupLinkPostRoutes() {
 
       Effect.catchTags({
         CreateLinkError: () => Effect.succeed(c.json({ message: "Create Link Error" }, 500)),
+        FindProjectByIdError: () => Effect.succeed(c.json({ message: "find Project Error" }, 404)),
+        NoSuchElementException: () => Effect.succeed(c.json({ message: `Not found Project Id: ${body.projectId}` }, 404)),
         ParseError: () => Effect.succeed(c.json({ message: "Parse Error" }, 500)),
+
       }),
       Effect.withSpan("POST /.link.controller"),
     )
