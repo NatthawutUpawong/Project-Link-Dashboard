@@ -149,7 +149,7 @@ export function setupLinkGetRoutes() {
       Effect.andThen(data => c.json(data, 200)),
       Effect.tap(() => Effect.log("test")),
       Effect.catchTags({
-        FindLinkByNameError: () => Effect.succeed(c.json({ message: "find by Id error" }, 500)),
+        FindLinkByNameError: () => Effect.succeed(c.json({ message: "find by Name error" }, 500)),
         NoSuchElementException: () => Effect.succeed(c.json({ message: `not found link name: ${linkName}` }, 404)),
         ParseError: () => Effect.succeed(c.json({ message: "parse error" }, 500)),
       }),
