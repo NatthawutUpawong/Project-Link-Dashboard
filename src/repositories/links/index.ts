@@ -12,10 +12,11 @@ function initLinkRepository(prismaClient: PrismaClient): Types.LinkRepository {
     create: Creates.create(prismaClient),
     findById: Finds.findById(prismaClient),
     findByIdWithRelations: Finds.findByIdWithRelations(prismaClient),
+    findByNameWithRelations: Finds.findByName(prismaClient),
     findMany: Finds.findMany(prismaClient),
     findManyWithRelations: Finds.findManyWithRelations(prismaClient),
     hardRemove: Removes.hardRemoveById(prismaClient),
-    remove: Removes.remove(prismaClient), 
+    remove: Removes.remove(prismaClient),
     update: Updates.update(prismaClient),
     updatePartial: Updates.updatePartial(prismaClient),
   }

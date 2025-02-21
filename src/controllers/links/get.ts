@@ -4,71 +4,44 @@ import { Hono } from "hono"
 import { describeRoute } from "hono-openapi"
 import { resolver, validator } from "hono-openapi/effect"
 import { ServicesRuntime } from "../../runtime/index.js"
-import { Branded, Helpers, LinkWithRelationsSchema } from "../../schema/index.js"
+import { Branded, Helpers, LinkSchema, LinkWithRelationsSchema } from "../../schema/index.js"
 import { LinkServiceContext } from "../../services/link/indext.js"
 // import * as Errors from "../../types/error/link-errors.js"
-
-const getByIdResponseSchema = LinkWithRelationsSchema.Schema.omit("deletedAt")
-
-const getByIdDocs = describeRoute({
-  responses: {
-    200: {
-      content: {
-        "application/json": {
-          schema: resolver(getByIdResponseSchema),
-        },
-      },
-      description: "Get Link by Id",
-    },
-    404: {
-      content: {
-        "application/json": {
-          schema: resolver(S.Struct({
-            message: S.String,
-          })),
-        },
-      },
-      description: "Get Link By Id Not Found",
-    },
-  },
-  tags: ["Link"],
-})
-
-const getManyResponseSchema = S.Array(LinkWithRelationsSchema.Schema.omit("deletedAt"))
-
-
-const getManyDocs = describeRoute({
-  responses: {
-    200: {
-      content: {
-        "application/json": {
-          schema: resolver(getManyResponseSchema),
-        },
-      },
-      description: "Get Links",
-    },
-    500: {
-      content: {
-        "application/json": {
-          schema: resolver(S.Struct({
-            message: S.String,
-          })),
-        },
-      },
-      description: "Get Links Error",
-    },
-  },
-  tags: ["Link"],
-})
-
-const validateUserRequest = validator("param", S.Struct({
-  linkId: Branded.LinkIdFromString,
-}))
 
 export function setupLinkGetRoutes() {
   const app = new Hono()
 
-  app.get("/:linkId", getByIdDocs, validateUserRequest, async (c) => {
+  const getByIdResponseSchema = LinkWithRelationsSchema.Schema.omit("deletedAt")
+
+  const getByIdDocs = describeRoute({
+    responses: {
+      200: {
+        content: {
+          "application/json": {
+            schema: resolver(getByIdResponseSchema),
+          },
+        },
+        description: "Get Link by Id",
+      },
+      404: {
+        content: {
+          "application/json": {
+            schema: resolver(S.Struct({
+              message: S.String,
+            })),
+          },
+        },
+        description: "Get Link By Id Not Found",
+      },
+    },
+    tags: ["Link"],
+  })
+
+  const validateLinkIdRequest = validator("param", S.Struct({
+    linkId: Branded.LinkIdFromString,
+  }))
+
+  app.get("/:linkId", getByIdDocs, validateLinkIdRequest, async (c) => {
     const { linkId } = c.req.valid("param")
     const parseResponse = Helpers.fromObjectToSchemaEffect(getByIdResponseSchema)
 
@@ -85,10 +58,36 @@ export function setupLinkGetRoutes() {
       }),
       Effect.annotateLogs({ key: "annotate" }),
       Effect.withLogSpan("test"),
-      Effect.withSpan("GET /userId.user.controller /"),
+      Effect.withSpan("GET /linkId.link.controller /"),
     )
     const result = await ServicesRuntime.runPromise(program)
     return result
+  })
+
+  const getManyResponseSchema = S.Array(LinkWithRelationsSchema.Schema.omit("deletedAt"))
+
+  const getManyDocs = describeRoute({
+    responses: {
+      200: {
+        content: {
+          "application/json": {
+            schema: resolver(getManyResponseSchema),
+          },
+        },
+        description: "Get Links",
+      },
+      500: {
+        content: {
+          "application/json": {
+            schema: resolver(S.Struct({
+              message: S.String,
+            })),
+          },
+        },
+        description: "Get Links Error",
+      },
+    },
+    tags: ["Link"],
   })
 
   app.get("/", getManyDocs, async (c) => {
@@ -98,7 +97,6 @@ export function setupLinkGetRoutes() {
       Effect.tap(() => Effect.log("start finding many links")),
       Effect.andThen(svc => svc.findMany()),
       Effect.andThen(parseResponse),
-      // Effect.andThen(b =>b),
       Effect.andThen(data => c.json(data, 200)),
       Effect.tap(() => Effect.log("test")),
       Effect.catchTags({
@@ -110,6 +108,55 @@ export function setupLinkGetRoutes() {
       Effect.withSpan("GET /.link.controller /"),
     )
 
+    const result = await ServicesRuntime.runPromise(program)
+    return result
+  })
+
+  const getNameDocs = describeRoute({
+    responses: {
+      200: {
+        content: {
+          "application/json": {
+            schema: resolver(getManyResponseSchema),
+          },
+        },
+        description: "Get Link by Id",
+      },
+      404: {
+        content: {
+          "application/json": {
+            schema: resolver(getManyResponseSchema),
+          },
+        },
+        description: "Get Link By Id Not Found",
+      },
+    },
+    tags: ["Link"],
+  })
+
+  const getLinkByLinkNameValidateRequest = validator("param", S.Struct({
+    linkName: LinkSchema.Schema.fields.name,
+  }))
+
+  app.get("link/:linkName", getNameDocs, getLinkByLinkNameValidateRequest, async (c) => {
+    const { linkName } = c.req.valid("param")
+    const parseResponse = Helpers.fromObjectToSchemaEffect(getManyResponseSchema)
+
+    const program = LinkServiceContext.pipe(
+      Effect.tap(() => Effect.log("start finding by Id link")),
+      Effect.andThen(svc => svc.findOneByName(linkName)),
+      Effect.andThen(parseResponse),
+      Effect.andThen(data => c.json(data, 200)),
+      Effect.tap(() => Effect.log("test")),
+      Effect.catchTags({
+        FindLinkByNameError: () => Effect.succeed(c.json({ message: "find by Id error" }, 500)),
+        NoSuchElementException: () => Effect.succeed(c.json({ message: `not found link name: ${linkName}` }, 404)),
+        ParseError: () => Effect.succeed(c.json({ message: "parse error" }, 500)),
+      }),
+      Effect.annotateLogs({ key: "annotate" }),
+      Effect.withLogSpan("test"),
+      Effect.withSpan("GET /linkname.link.controller /"),
+    )
     const result = await ServicesRuntime.runPromise(program)
     return result
   })

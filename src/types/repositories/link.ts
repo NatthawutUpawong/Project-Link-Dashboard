@@ -9,6 +9,7 @@ export type LinkRepository = {
   create: (data: LinkSchema.CreateLink) => Effect.Effect<LinkSchema.Link, Errors.CreateLinkError | ParseError>
   findById: (id: Branded.LinkId) => Effect.Effect<LinkSchema.Link, Errors.FindLinkByIdError | ParseError | NoSuchElementException>
   findByIdWithRelations: (id: Branded.LinkId) => Effect.Effect<LinkWithRelationsSchema.LinkWithRelations, NoSuchElementException | ParseError | Errors.FindLinkByIdError>
+  findByNameWithRelations: (name: LinkSchema.Link["name"]) => Effect.Effect<LinkWithRelationsSchema.LinkWithRelationsArray, NoSuchElementException | ParseError | Errors.FindLinkByNameError>
   findMany: () => Effect.Effect<LinkSchema.LinkArray, Errors.FindManyLinkError>
   findManyWithRelations: () => Effect.Effect<LinkWithRelationsSchema.LinkWithRelationsArray, Errors.FindManyLinkError>
   update: (id: Branded.LinkId, data: LinkSchema.UpdateLink) => Effect.Effect<LinkSchema.Link, Errors.UpdateLinkError | ParseError>

@@ -12,7 +12,7 @@ const responseSchema = ProjectSchema.Schema.omit("deletedAt")
 
 const putDocs = honoOpenapi.describeRoute({
   responses: {
-    201: {
+    200: {
       content: {
         "application/json": {
           schema: resolver(responseSchema),
