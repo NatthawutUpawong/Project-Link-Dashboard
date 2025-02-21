@@ -9,8 +9,6 @@ import { LinkServiceContext } from "../../services/link/indext.js"
 import { ProjectServiceContext } from "../../services/project/indext.js"
 import * as ErrorsLink from "../../types/error/link-errors.js"
 import * as ErrorsProject from "../../types/error/project-errors.js"
-import type { project } from "effect/Layer"
-import { andThen } from "effect/Option"
 
 const responseSchema = LinkSchema.Schema.omit("deletedAt")
 
@@ -62,34 +60,32 @@ export function setupLinkPutRoutes() {
 
       Effect.tap(({ linkServices }) => linkServices.findOneById(linkId).pipe(
         Effect.catchTag("NoSuchElementException", () =>
-          Effect.fail(ErrorsLink.FindLinkByIdError.new(`Not found Link Id: ${linkId}`)())
-        ),
+          Effect.fail(ErrorsLink.FindLinkByIdError.new(`Not found Link Id: ${linkId}`)())),
       )),
-      
+
       Effect.tap(({ projectServices }) => projectServices.findOneById(body.projectId).pipe(
         Effect.catchTag("NoSuchElementException", () =>
-          Effect.fail(ErrorsProject.FindProjectByIdError.new(`Not found Project Id: ${body.projectId}`)())
-        ),
+          Effect.fail(ErrorsProject.FindProjectByIdError.new(`Not found Project Id: ${body.projectId}`)())),
       )),
-      
+
       Effect.tap(({ linkServices }) => linkServices.findOneById(body.id).pipe(
         Effect.catchTag("NoSuchElementException", () => Effect.succeed(null)),
         Effect.andThen(existingLink =>
           existingLink && existingLink.id !== linkId
             ? Effect.fail(ErrorsLink.IdLinkAlreadyExitError.new(`Id: ${existingLink.id} already exists`)())
-            : Effect.void
-        )
-      )),      
-      
-      Effect.andThen(b=>b),
+            : Effect.void,
+        ),
+      )),
+
+      Effect.andThen(b => b),
       Effect.andThen(({ linkServices }) => linkServices.update(linkId, body)),
 
       Effect.andThen(parseResponse),
       Effect.andThen(data => c.json(data, 201)),
       Effect.catchTags({
-        IdLinkAlreadyExitError: e => Effect.succeed(c.json({message: e.msg},500)),
         FindLinkByIdError: e => Effect.succeed(c.json({ message: e.msg }, 404)),
         FindProjectByIdError: e => Effect.succeed(c.json({ message: e.msg }, 404)),
+        IdLinkAlreadyExitError: e => Effect.succeed(c.json({ message: e.msg }, 500)),
         ParseError: () => Effect.succeed(c.json({ messgae: "Parse error " }, 500)),
         UpdateLinkError: () => Effect.succeed(c.json({ message: "update failed" }, 500)),
       }),

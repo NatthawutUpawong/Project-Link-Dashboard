@@ -19,7 +19,7 @@ export class LinkServiceContext extends Context.Tag("service/link")<LinkServiceC
           findOneById: id => repo.findByIdWithRelations(id).pipe(
             Effect.withSpan("find-all-by-id.link.service"),
           ),
-          remove: id => repo.remove(id).pipe(
+          remove: id => repo.hardRemove(id).pipe(
             Effect.withSpan("remove-by-id.service"),
           ),
           update: (id, data) => repo.update(id, data).pipe(

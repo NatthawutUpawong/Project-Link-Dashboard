@@ -25,18 +25,6 @@ export class ProjectServiceContext extends Context.Tag("service/Project")<Projec
           update: (id, data) => repo.update(id, data).pipe(
             Effect.withSpan("update.user.service"),
           ),
-          // findallById: id => repo.findallById(id).pipe(
-          //   Effect.withSpan("find-all-by-id.user.service"),
-          // ),
-          // findByUsername: username => repo.findByUsername(username).pipe(
-          //   Effect.withSpan("find-by-username.user.service"),
-          // ),
-          // findMany: () => repo.findMany().pipe(
-          //   Effect.withSpan("find-many.user.service"),
-          // ),
-          // findOneById: id => repo.findById(id).pipe(
-          //   Effect.withSpan("find-by-id.user.service"),
-          // ),
         } satisfies ProjectService
       }),
     ),

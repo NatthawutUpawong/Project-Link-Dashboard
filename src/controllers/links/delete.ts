@@ -4,11 +4,11 @@ import { Hono } from "hono"
 import * as honoOpenapi from "hono-openapi"
 import { resolver, validator } from "hono-openapi/effect"
 import { ServicesRuntime } from "../../runtime/index.js"
-import { Branded, Helpers, ProjectSchema } from "../../schema/index.js"
-import { ProjectServiceContext } from "../../services/project/indext.js"
-import * as Errors from "../../types/error/project-errors.js"
+import { Branded, Helpers, LinkSchema } from "../../schema/index.js"
+import { LinkServiceContext } from "../../services/link/indext.js"
+import * as Errors from "../../types/error/link-errors.js"
 
-const deleteponseSchema = ProjectSchema.Schema.omit("deletedAt")
+const deleteponseSchema = LinkSchema.Schema.omit("deletedAt")
 
 const deleteDocs = honoOpenapi.describeRoute({
   responses: {
@@ -18,7 +18,7 @@ const deleteDocs = honoOpenapi.describeRoute({
           schema: resolver(deleteponseSchema),
         },
       },
-      description: "Delete Project",
+      description: "Delete Link",
     },
     500: {
       content: {
@@ -28,73 +28,43 @@ const deleteDocs = honoOpenapi.describeRoute({
           })),
         },
       },
-      description: "Delete Project Error",
+      description: "Delete Link Error",
     },
   },
-  tags: ["Project"],
+  tags: ["Link"],
 })
 
 const validateDeleteParam = validator("param", S.Struct({
-  ProjectId: Branded.ProjectIdFromString,
+  LinkId: Branded.LinkIdFromString,
 }))
 
-export function setupProjectDeleteRoutes() {
+export function setupLinkDeleteRoutes() {
   const app = new Hono()
 
-  // app.delete("/:ProjectId", deleteDocs, validateDeleteParam, async (c) => {
-  //   const { ProjectId } = c.req.valid("param")
-
-  //   const parseResponse = Helpers.fromObjectToSchemaEffect(deleteponseSchema)
-
-  //   const programs = Effect.all({
-  //     projectServices: ProjectServiceContext,
-  //   }).pipe(
-  //     Effect.tap(() => Effect.log("Update starting")),
-  //     Effect.andThen(b => b),
-  //     Effect.tap(({ projectServices }) => projectServices.findOneById(ProjectId).pipe(
-  //       Effect.catchTag("NoSuchElementException", () =>
-  //         Effect.fail(Errors.FindProjectByIdError.new(`Not found Id: ${ProjectId}`)())),
-  //     )),
-  //     Effect.andThen(({ projectServices }) => projectServices.removeById(ProjectId)),
-
-  //     Effect.andThen(parseResponse),
-  //     Effect.andThen(data => c.json(data, 201)),
-  //     Effect.catchTags({
-  //       FindProjectByIdError: e => Effect.succeed(c.json({ message: e.msg }, 404)),
-  //       ParseError: () => Effect.succeed(c.json({ messgae: "Parse error " }, 500)),
-  //       RemoveProjectError: () => Effect.succeed(c.json({ message: "remove failed" }, 500)),
-  //     }),
-  //     Effect.withSpan("DELETE /.project.controller"),
-  //   )
-
-  //   const result = await ServicesRuntime.runPromise(programs)
-  //   return result
-  // })
-
-  app.delete("/:ProjectId", deleteDocs, validateDeleteParam, async (c) => {
-    const { ProjectId } = c.req.valid("param")
+  app.delete("/:LinkId", deleteDocs, validateDeleteParam, async (c) => {
+    const { LinkId } = c.req.valid("param")
 
     const parseResponse = Helpers.fromObjectToSchemaEffect(deleteponseSchema)
 
     const programs = Effect.all({
-      projectServices: ProjectServiceContext,
+      linktServices: LinkServiceContext,
     }).pipe(
-      Effect.tap(() => Effect.log("Update starting")),
+      Effect.tap(() => Effect.log("Delete starting")),
       Effect.andThen(b => b),
-      Effect.tap(({ projectServices }) => projectServices.findOneById(ProjectId).pipe(
+      Effect.tap(({ linktServices }) => linktServices.findOneById(LinkId).pipe(
         Effect.catchTag("NoSuchElementException", () =>
-          Effect.fail(Errors.FindProjectByIdError.new(`Not found Id: ${ProjectId}`)())),
+          Effect.fail(Errors.FindLinkByIdError.new(`Not found Id: ${LinkId}`)())),
       )),
-      Effect.andThen(({ projectServices }) => projectServices.removeById(ProjectId)),
+      Effect.andThen(({ linktServices }) => linktServices.remove(LinkId)),
 
       Effect.andThen(parseResponse),
       Effect.andThen(data => c.json(data, 201)),
       Effect.catchTags({
-        FindProjectByIdError: e => Effect.succeed(c.json({ message: e.msg }, 404)),
+        FindLinkByIdError: e => Effect.succeed(c.json({ message: e.msg }, 404)),
         ParseError: () => Effect.succeed(c.json({ messgae: "Parse error " }, 500)),
-        RemoveProjectError: () => Effect.succeed(c.json({ message: "remove failed" }, 500)),
+        RemoveLinkError: () => Effect.succeed(c.json({ message: "remove failed" }, 500)),
       }),
-      Effect.withSpan("DELETE /.project.controller"),
+      Effect.withSpan("DELETE /.Link.controller"),
     )
 
     const result = await ServicesRuntime.runPromise(programs)

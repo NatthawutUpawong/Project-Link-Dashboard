@@ -1,5 +1,5 @@
 import { Hono } from "hono"
-// import * as EmployeeDeleteRoutes from "./delete.js"
+import * as LinkDeleteRoutes from "./delete.js"
 import * as LinkGetRoutes from "./get.js"
 import * as LinkPostRoutes from "./post.js"
 import * as LinkPutRoutes from "./put.js"
@@ -13,7 +13,7 @@ export function setupLinkRoutes() {
 
   app.route("/", LinkPutRoutes.setupLinkPutRoutes())
 
-  // app.route("/", EmployeeDeleteRoutes.setupRoutes())
+  app.route("/", LinkDeleteRoutes.setupLinkDeleteRoutes())
 
   return app
 }

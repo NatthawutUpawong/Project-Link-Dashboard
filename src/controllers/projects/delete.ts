@@ -41,36 +41,6 @@ const validateDeleteParam = validator("param", S.Struct({
 export function setupProjectDeleteRoutes() {
   const app = new Hono()
 
-  // app.delete("/:ProjectId", deleteDocs, validateDeleteParam, async (c) => {
-  //   const { ProjectId } = c.req.valid("param")
-
-  //   const parseResponse = Helpers.fromObjectToSchemaEffect(deleteponseSchema)
-
-  //   const programs = Effect.all({
-  //     projectServices: ProjectServiceContext,
-  //   }).pipe(
-  //     Effect.tap(() => Effect.log("Update starting")),
-  //     Effect.andThen(b => b),
-  //     Effect.tap(({ projectServices }) => projectServices.findOneById(ProjectId).pipe(
-  //       Effect.catchTag("NoSuchElementException", () =>
-  //         Effect.fail(Errors.FindProjectByIdError.new(`Not found Id: ${ProjectId}`)())),
-  //     )),
-  //     Effect.andThen(({ projectServices }) => projectServices.removeById(ProjectId)),
-
-  //     Effect.andThen(parseResponse),
-  //     Effect.andThen(data => c.json(data, 201)),
-  //     Effect.catchTags({
-  //       FindProjectByIdError: e => Effect.succeed(c.json({ message: e.msg }, 404)),
-  //       ParseError: () => Effect.succeed(c.json({ messgae: "Parse error " }, 500)),
-  //       RemoveProjectError: () => Effect.succeed(c.json({ message: "remove failed" }, 500)),
-  //     }),
-  //     Effect.withSpan("DELETE /.project.controller"),
-  //   )
-
-  //   const result = await ServicesRuntime.runPromise(programs)
-  //   return result
-  // })
-
   app.delete("/:ProjectId", deleteDocs, validateDeleteParam, async (c) => {
     const { ProjectId } = c.req.valid("param")
 
