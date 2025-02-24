@@ -13,11 +13,10 @@ export type ProjectRepository = {
   findByIdWithRelations: (id: Branded.ProjectId) => Effect.Effect<ProjectWithRelationsSchema.ProjectWithRelations, Errors.FindProjectByIdError | ParseError | NoSuchElementException>
   findMany: () => Effect.Effect<ProjectSchema.ProjectArray, Errors.FindManyProjectError>
   findManyWithRelations: () => Effect.Effect<ProjectWithRelationsSchema.ProjectWithRelationsArray, Errors.FindManyProjectError>
+  findManyPagination: (limit: number, offset: number,) => Effect.Effect<ProjectWithRelationsSchema.ProjectWithRelationsArray, Errors.FindManyProjectError>
   update: (id: Branded.ProjectId, data: ProjectSchema.UpdateProjectEncoded) => Effect.Effect<Project, Errors.UpdateProjectError | ParseError>
   updatePartial: (id: Branded.ProjectId, data: Partial<ProjectSchema.UpdateProjectEncoded>) => Effect.Effect<Project, Errors.UpdateProjectError>
   remove: (id: Branded.ProjectId) => Effect.Effect<Project, Errors.RemoveProjectError>
   hardRemove: (id: Branded.ProjectId) => Effect.Effect<Project, Errors.RemoveProjectError>
+  count: () => Effect.Effect<number, Errors.FindManyProjectError>
 }
-
-// ParseError คือ Parse Effect Schema ไม่ผ่าน
-// NoSuchElementException เป็น error ที่ใช้บอกว่าไม่มี element นั้นๆ

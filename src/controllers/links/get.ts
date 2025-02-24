@@ -138,13 +138,14 @@ export function setupLinkGetRoutes() {
     linkName: LinkSchema.Schema.fields.name,
   }))
 
-  app.get("link/:linkName", getNameDocs, getLinkByLinkNameValidateRequest, async (c) => {
+  app.get("linkName/:linkName", getNameDocs, getLinkByLinkNameValidateRequest, async (c) => {
     const { linkName } = c.req.valid("param")
     const parseResponse = Helpers.fromObjectToSchemaEffect(getManyResponseSchema)
 
     const program = LinkServiceContext.pipe(
       Effect.tap(() => Effect.log("start finding by Id link")),
       Effect.andThen(svc => svc.findOneByName(linkName)),
+      // Effect.andThen(b => b),
       Effect.andThen(parseResponse),
       Effect.andThen(data => c.json(data, 200)),
       Effect.tap(() => Effect.log("test")),

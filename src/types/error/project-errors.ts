@@ -21,3 +21,7 @@ export class UpdateProjectError extends Data.TaggedError("UpdateProjectError")<E
 export class RemoveProjectError extends Data.TaggedError("RemoveProjectError")<ErrorMsg> {
   static new = createErrorFactory(this)
 }
+
+export class CountProjectError extends Data.TaggedError("CountProjectError")<ErrorMsg> {
+  static new = createErrorFactory(this)
+}

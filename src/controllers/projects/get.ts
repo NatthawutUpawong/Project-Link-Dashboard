@@ -4,7 +4,7 @@ import { Hono } from "hono"
 import { describeRoute } from "hono-openapi"
 import { resolver, validator } from "hono-openapi/effect"
 import { ServicesRuntime } from "../../runtime/index.js"
-import { Branded, Helpers,  ProjectWithRelationsSchema } from "../../schema/index.js"
+import { Branded, Helpers, ProjectWithRelationsSchema } from "../../schema/index.js"
 import { ProjectServiceContext } from "../../services/project/indext.js"
 // import * as Errors from "../../types/error/link-errors.js"
 
@@ -74,6 +74,7 @@ export function setupProjectGetRoutes() {
     const program = ProjectServiceContext.pipe(
       Effect.tap(() => Effect.log("start finding by Id Project")),
       Effect.andThen(svc => svc.findOneById(ProjectId)),
+      // Effect.andThen(b=>b),
       Effect.andThen(parseResponse),
       Effect.andThen(data => c.json(data, 200)),
       Effect.tap(() => Effect.log("test")),
@@ -91,17 +92,18 @@ export function setupProjectGetRoutes() {
   })
 
   app.get("/", getManyDocs, async (c) => {
-    const parseResponse = Helpers.fromObjectToSchemaEffect(getManyResponseSchema)
+    const limit = Number(c.req.query("itemPerpage") ?? 10)
+    const page = Number(c.req.query("page") ?? 1)
+    const offset = (page - 1) * limit
 
     const program = ProjectServiceContext.pipe(
       Effect.tap(() => Effect.log("start finding many Projects")),
-      Effect.andThen(svc => svc.findMany()),
-      Effect.andThen(parseResponse),
+      Effect.andThen(svc => svc.findManyPagination(limit, offset, page)),
+      Effect.andThen(b => b),
       Effect.andThen(data => c.json(data, 200)),
       Effect.tap(() => Effect.log("test")),
       Effect.catchTags({
         FindManyProjectError: () => Effect.succeed(c.json({ message: "find many error" }, 500)),
-        ParseError: () => Effect.succeed(c.json({ message: "parse error" }, 500)),
       }),
       Effect.annotateLogs({ key: "annotate" }),
       Effect.withLogSpan("test"),
@@ -111,6 +113,28 @@ export function setupProjectGetRoutes() {
     const result = await ServicesRuntime.runPromise(program)
     return result
   })
+
+  // app.get("/", getManyDocs, async (c) => {
+  //   const parseResponse = Helpers.fromObjectToSchemaEffect(getManyResponseSchema)
+
+  //   const program = ProjectServiceContext.pipe(
+  //     Effect.tap(() => Effect.log("start finding many Projects")),
+  //     Effect.andThen(svc => svc.findMany()),
+  //     Effect.andThen(parseResponse),
+  //     Effect.andThen(data => c.json(data, 200)),
+  //     Effect.tap(() => Effect.log("test")),
+  //     Effect.catchTags({
+  //       FindManyProjectError: () => Effect.succeed(c.json({ message: "find many error" }, 500)),
+  //       ParseError: () => Effect.succeed(c.json({ message: "parse error" }, 500)),
+  //     }),
+  //     Effect.annotateLogs({ key: "annotate" }),
+  //     Effect.withLogSpan("test"),
+  //     Effect.withSpan("GET /.project.controller /"),
+  //   )
+
+  //   const result = await ServicesRuntime.runPromise(program)
+  //   return result
+  // })
 
   return app
 }
