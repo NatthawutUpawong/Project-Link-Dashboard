@@ -3,11 +3,11 @@ import * as S from "effect/Schema"
 
 
 export const Schema = S.Struct({
-  current_page: S.Number,
-  item_perpage: S.Number,
-  total_pages: S.Number,
-  next_page: S.String,
-  prev_page: S.String,
+  page: S.Number,
+  itemPerpage: S.Number,
+  totalPages: S.Number,
+  nextPage: S.String,
+  prevPage: S.String,
 })
 
 export type pagination = S.Schema.Type<typeof Schema>

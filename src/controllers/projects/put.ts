@@ -52,7 +52,6 @@ export function setupProjectPutRoutes() {
       projectServices: ProjectServiceContext,
     }).pipe(
       Effect.tap(() => Effect.log("Update starting")),
-      Effect.andThen(b => b),
       Effect.tap(({ projectServices }) => projectServices.findOneById(ProjectId).pipe(
         Effect.catchTag("NoSuchElementException", () =>
           Effect.fail(Errors.FindProjectByIdError.new(`Not found Id: ${ProjectId}`)())),

@@ -33,9 +33,30 @@ export function findManyWithRelations(prismaClient: PrismaClient): LinkRepositor
       },
     }),
   }).pipe(
-    // Effect.tap(d => console.log(d)),
     Effect.andThen(Helpers.fromObjectToSchema(LinkWithRelationsSchema.SchemaArray)),
-    // Effect.tap(d => console.log(d)),
+    Effect.withSpan("find-many.link.repository"),
+
+  )
+}
+export function findManyPagination(prismaClient: PrismaClient): LinkRepository["findManyPagination"] {
+  return (limit, offset) => Effect.tryPromise({
+    catch: Errors.FindManyLinkError.new(),
+    try: () => prismaClient.link.findMany({
+      include: {
+        project: true,
+      },
+      skip: offset,
+      take: limit,
+      where: {
+        deletedAt: null,
+        project: {
+          is: { deletedAt: null },
+        },
+      },
+    }),
+  }).pipe(
+    Effect.andThen(Helpers.fromObjectToSchema(LinkWithRelationsSchema.SchemaArray)),
+    Effect.tap(b => console.log(b)),
     Effect.withSpan("find-many.link.repository"),
 
   )

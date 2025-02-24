@@ -91,18 +91,24 @@ export function setupLinkGetRoutes() {
   })
 
   app.get("/", getManyDocs, async (c) => {
+    const limit = Number(c.req.query("itemPerpage") ?? 10)
+    const page = Number(c.req.query("page") ?? 1)
+    const offset = (page - 1) * limit
     const parseResponse = Helpers.fromObjectToSchemaEffect(getManyResponseSchema)
 
     const program = LinkServiceContext.pipe(
       Effect.tap(() => Effect.log("start finding many links")),
-      Effect.andThen(svc => svc.findMany()),
-      Effect.andThen(parseResponse),
+      Effect.andThen(svc => svc.findManyPagination(limit, offset, page)),
+      Effect.andThen(({ data, pagination }) => 
+      parseResponse(data).pipe(Effect.map(parsedData => ({ data: parsedData, pagination })))
+    ),
       Effect.andThen(data => c.json(data, 200)),
       Effect.tap(() => Effect.log("test")),
       Effect.catchTags({
         FindManyLinkError: () => Effect.succeed(c.json({ message: "find many error" }, 500)),
         ParseError: () => Effect.succeed(c.json({ message: "parse error" }, 500)),
       }),
+   
       Effect.annotateLogs({ key: "annotate" }),
       Effect.withLogSpan("test"),
       Effect.withSpan("GET /.link.controller /"),
@@ -111,6 +117,27 @@ export function setupLinkGetRoutes() {
     const result = await ServicesRuntime.runPromise(program)
     return result
   })
+  // app.get("/", getManyDocs, async (c) => {
+  //   const parseResponse = Helpers.fromObjectToSchemaEffect(getManyResponseSchema)
+
+  //   const program = LinkServiceContext.pipe(
+  //     Effect.tap(() => Effect.log("start finding many links")),
+  //     Effect.andThen(svc => svc.findMany()),
+  //     Effect.andThen(parseResponse),
+  //     Effect.andThen(data => c.json(data, 200)),
+  //     Effect.tap(() => Effect.log("test")),
+  //     Effect.catchTags({
+  //       FindManyLinkError: () => Effect.succeed(c.json({ message: "find many error" }, 500)),
+  //       ParseError: () => Effect.succeed(c.json({ message: "parse error" }, 500)),
+  //     }),
+  //     Effect.annotateLogs({ key: "annotate" }),
+  //     Effect.withLogSpan("test"),
+  //     Effect.withSpan("GET /.link.controller /"),
+  //   )
+
+  //   const result = await ServicesRuntime.runPromise(program)
+  //   return result
+  // })
 
   const getNameDocs = describeRoute({
     responses: {

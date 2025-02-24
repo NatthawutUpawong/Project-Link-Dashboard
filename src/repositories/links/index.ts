@@ -6,15 +6,18 @@ import * as Creates from "./creates.js"
 import * as Finds from "./finds.js"
 import * as Removes from "./removes.js"
 import * as Updates from "./updates.js"
+import * as Count from "./count.js"
 
 function initLinkRepository(prismaClient: PrismaClient): Types.LinkRepository {
   return {
+    count: Count.count(prismaClient),
     create: Creates.create(prismaClient),
     findById: Finds.findById(prismaClient),
     findByIdWithRelations: Finds.findByIdWithRelations(prismaClient),
     findByNameWithRelations: Finds.findByName(prismaClient),
     findMany: Finds.findMany(prismaClient),
     findManyWithRelations: Finds.findManyWithRelations(prismaClient),
+    findManyPagination: Finds.findManyPagination(prismaClient),
     hardRemove: Removes.hardRemoveById(prismaClient),
     remove: Removes.remove(prismaClient),
     update: Updates.update(prismaClient),

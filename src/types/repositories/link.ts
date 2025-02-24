@@ -12,10 +12,13 @@ export type LinkRepository = {
   findByNameWithRelations: (name: LinkSchema.Link["name"]) => Effect.Effect<LinkWithRelationsSchema.LinkWithRelationsArray, NoSuchElementException | ParseError | Errors.FindLinkByNameError>
   findMany: () => Effect.Effect<LinkSchema.LinkArray, Errors.FindManyLinkError>
   findManyWithRelations: () => Effect.Effect<LinkWithRelationsSchema.LinkWithRelationsArray, Errors.FindManyLinkError>
+  findManyPagination: (limit: number, offset: number,) => Effect.Effect<LinkWithRelationsSchema.LinkWithRelationsArray, Errors.FindManyLinkError>
   update: (id: Branded.LinkId, data: LinkSchema.UpdateLink) => Effect.Effect<LinkSchema.Link, Errors.UpdateLinkError | ParseError>
   updatePartial: (id: Branded.LinkId, data: Partial<LinkSchema.UpdateLink>) => Effect.Effect<LinkSchema.Link, Errors.UpdateLinkError | ParseError>
   remove: (id: Branded.LinkId) => Effect.Effect<LinkSchema.Link, NoSuchElementException | Errors.RemoveLinkError | ParseError>
   hardRemove: (id: Branded.LinkId) => Effect.Effect<LinkSchema.Link, NoSuchElementException | Errors.RemoveLinkError | ParseError>
+  count: () => Effect.Effect<number, Errors.FindManyLinkError>
+  
 }
 
 // ParseError คือ Parse Effect Schema ไม่ผ่าน

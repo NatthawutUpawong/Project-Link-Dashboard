@@ -29,11 +29,11 @@ export class ProjectServiceContext extends Context.Tag("service/Project")<Projec
                     return {
                       data,
                       pagination: {
-                        current_page: page,
-                        item_perpage: limit,
-                        total_pages: totalPages,
-                        next_page: nextPage,
-                        prev_page: prevPage,
+                        page: page,
+                        itemPerpage: limit,
+                        totalPages: totalPages,
+                        nextPage: nextPage,
+                        prevPage: prevPage,
                       },
                     }
                   }),

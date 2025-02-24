@@ -92,6 +92,7 @@ export function setupProjectGetRoutes() {
   })
 
   app.get("/", getManyDocs, async (c) => {
+    const parseResponse = Helpers.fromObjectToSchemaEffect(getManyResponseSchema)
     const limit = Number(c.req.query("itemPerpage") ?? 10)
     const page = Number(c.req.query("page") ?? 1)
     const offset = (page - 1) * limit
@@ -100,10 +101,14 @@ export function setupProjectGetRoutes() {
       Effect.tap(() => Effect.log("start finding many Projects")),
       Effect.andThen(svc => svc.findManyPagination(limit, offset, page)),
       Effect.andThen(b => b),
+      Effect.andThen(({ data, pagination }) => 
+        parseResponse(data).pipe(Effect.map(parsedData => ({ data: parsedData, pagination })))
+      ),
       Effect.andThen(data => c.json(data, 200)),
       Effect.tap(() => Effect.log("test")),
       Effect.catchTags({
         FindManyProjectError: () => Effect.succeed(c.json({ message: "find many error" }, 500)),
+        ParseError: () => Effect.succeed(c.json({ message: "parse error" }, 500)),
       }),
       Effect.annotateLogs({ key: "annotate" }),
       Effect.withLogSpan("test"),

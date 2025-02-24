@@ -1,6 +1,7 @@
 import type { LinkService } from "../../types/services/link.js"
 import { Context, Effect, Layer } from "effect"
 import { LinkRepositoryContext } from "../../repositories/links/index.js"
+import { cons } from "effect/List"
 
 export class LinkServiceContext extends Context.Tag("service/link")<LinkServiceContext, LinkService>() {
   static Live = Layer.effect(
@@ -21,6 +22,26 @@ export class LinkServiceContext extends Context.Tag("service/link")<LinkServiceC
           ),
           findOneByName: id => repo.findByNameWithRelations(id).pipe(
             Effect.withSpan("find-all-by-id.link.service"),
+          ),
+          findManyPagination: (limit, offset, page) => repo.findManyPagination(limit, offset).pipe(
+            Effect.andThen(data => repo.count().pipe(
+              Effect.andThen((totalItems) =>{
+                const totalPages = Math.ceil(totalItems / limit)
+                const nextPage = page < totalPages ? `http://localhost:3000/link?page=${page + 1}&itemPerpage=${limit}` : `null`;
+                const prevPage = page > 1 ? `http://localhost:3000/link?page=${page - 1}&itemPerpage=${limit}` : `null`;
+
+                return{
+                  data,
+                  pagination: {
+                    page: page,
+                    itemPerpage: limit,
+                    totalPages: totalPages,
+                    nextPage: nextPage,
+                    prevPage: prevPage,
+                  },
+                }
+              })
+            ))
           ),
           remove: id => repo.hardRemove(id).pipe(
             Effect.withSpan("remove-by-id.service"),
