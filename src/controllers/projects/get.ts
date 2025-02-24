@@ -60,14 +60,14 @@ const getManyDocs = describeRoute({
   tags: ["Project"],
 })
 
-const validateUserRequest = validator("param", S.Struct({
+const validateProjectRequest = validator("param", S.Struct({
   ProjectId: Branded.ProjectIdFromString,
 }))
 
 export function setupProjectGetRoutes() {
   const app = new Hono()
 
-  app.get("/:ProjectId", getByIdDocs, validateUserRequest, async (c) => {
+  app.get("/:ProjectId", getByIdDocs, validateProjectRequest, async (c) => {
     const { ProjectId } = c.req.valid("param")
     const parseResponse = Helpers.fromObjectToSchemaEffect(getByIdResponseSchema)
 

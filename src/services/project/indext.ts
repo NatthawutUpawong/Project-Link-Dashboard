@@ -20,10 +20,10 @@ export class ProjectServiceContext extends Context.Tag("service/Project")<Projec
             Effect.withSpan("find-all-by-id.project.service"),
           ),
           removeById: id => repo.hardRemove(id).pipe(
-            Effect.withSpan("remove-by-id.service"),
+            Effect.withSpan("remove-by-id.project.service"),
           ),
           update: (id, data) => repo.update(id, data).pipe(
-            Effect.withSpan("update.user.service"),
+            Effect.withSpan("update.project.service"),
           ),
         } satisfies ProjectService
       }),

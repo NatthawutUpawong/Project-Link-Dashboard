@@ -31,6 +31,6 @@ export function hardRemoveById(prismaClient: PrismaClient): LinkRepository["hard
     })
   }).pipe(
     Effect.andThen(Helpers.fromObjectToSchema(LinkSchema.Schema)),
-    Effect.withSpan("hard-remove.user.repostory")
+    Effect.withSpan("hard-remove.link.repostory")
   )
 }
