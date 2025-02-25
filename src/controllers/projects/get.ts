@@ -40,7 +40,6 @@ const getManyResponseSchema = S.Struct({
   pagination: paginationSchema.Schema,
 })
 
-
 const getManyDocs = describeRoute({
   responses: {
     200: {
@@ -106,7 +105,7 @@ export function setupProjectGetRoutes() {
       Effect.andThen(svc => svc.findManyPagination(limit, offset, page)),
       Effect.andThen(b => b),
       Effect.andThen(({ data, pagination }) =>
-        parseResponse({ data, pagination }).pipe(Effect.map(parsedData => ({ data: parsedData }))),
+        parseResponse({ data, pagination }),
       ),
       Effect.andThen(data => c.json(data, 200)),
       Effect.tap(() => Effect.log("test")),

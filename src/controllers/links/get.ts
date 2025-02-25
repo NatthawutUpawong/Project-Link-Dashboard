@@ -102,9 +102,7 @@ export function setupLinkGetRoutes() {
     const program = LinkServiceContext.pipe(
       Effect.tap(() => Effect.log("start finding many links")),
       Effect.andThen(svc => svc.findManyPagination(limit, offset, page)),
-      Effect.andThen(({ data, pagination }) =>
-        parseResponse({ data, pagination }).pipe(Effect.map(parsedData => ({ data: parsedData }))),
-      ),
+      Effect.andThen(({ data, pagination }) => parseResponse({ data, pagination })),
       Effect.andThen(data => c.json(data, 200)),
       Effect.tap(() => Effect.log("test")),
       Effect.catchTags({
