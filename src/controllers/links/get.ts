@@ -4,7 +4,7 @@ import { Hono } from "hono"
 import { describeRoute } from "hono-openapi"
 import { resolver, validator } from "hono-openapi/effect"
 import { ServicesRuntime } from "../../runtime/index.js"
-import { Branded, Helpers, LinkSchema, LinkWithRelationsSchema } from "../../schema/index.js"
+import { Branded, Helpers, LinkSchema, LinkWithRelationsSchema, paginationSchema } from "../../schema/index.js"
 import { LinkServiceContext } from "../../services/link/indext.js"
 // import * as Errors from "../../types/error/link-errors.js"
 
@@ -64,14 +64,17 @@ export function setupLinkGetRoutes() {
     return result
   })
 
-  const getManyResponseSchema = S.Array(LinkWithRelationsSchema.Schema.omit("deletedAt"))
+  const getManyPaginationResponseSchema = S.Struct({
+    data: S.Array(LinkWithRelationsSchema.Schema.omit("deletedAt")),
+    pagination: paginationSchema.Schema,
+  })
 
   const getManyDocs = describeRoute({
     responses: {
       200: {
         content: {
           "application/json": {
-            schema: resolver(getManyResponseSchema),
+            schema: resolver(getManyPaginationResponseSchema),
           },
         },
         description: "Get Links",
@@ -94,21 +97,21 @@ export function setupLinkGetRoutes() {
     const limit = Number(c.req.query("itemPerpage") ?? 10)
     const page = Number(c.req.query("page") ?? 1)
     const offset = (page - 1) * limit
-    const parseResponse = Helpers.fromObjectToSchemaEffect(getManyResponseSchema)
+    const parseResponse = Helpers.fromObjectToSchemaEffect(getManyPaginationResponseSchema)
 
     const program = LinkServiceContext.pipe(
       Effect.tap(() => Effect.log("start finding many links")),
       Effect.andThen(svc => svc.findManyPagination(limit, offset, page)),
-      Effect.andThen(({ data, pagination }) => 
-      parseResponse(data).pipe(Effect.map(parsedData => ({ data: parsedData, pagination })))
-    ),
+      Effect.andThen(({ data, pagination }) =>
+        parseResponse({ data, pagination }).pipe(Effect.map(parsedData => ({ data: parsedData }))),
+      ),
       Effect.andThen(data => c.json(data, 200)),
       Effect.tap(() => Effect.log("test")),
       Effect.catchTags({
         FindManyLinkError: () => Effect.succeed(c.json({ message: "find many error" }, 500)),
         ParseError: () => Effect.succeed(c.json({ message: "parse error" }, 500)),
       }),
-   
+
       Effect.annotateLogs({ key: "annotate" }),
       Effect.withLogSpan("test"),
       Effect.withSpan("GET /.link.controller /"),
@@ -138,6 +141,7 @@ export function setupLinkGetRoutes() {
   //   const result = await ServicesRuntime.runPromise(program)
   //   return result
   // })
+  const getManyResponseSchema = S.Array(LinkWithRelationsSchema.Schema.omit("deletedAt"))
 
   const getNameDocs = describeRoute({
     responses: {

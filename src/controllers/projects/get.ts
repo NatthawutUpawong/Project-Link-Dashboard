@@ -4,7 +4,7 @@ import { Hono } from "hono"
 import { describeRoute } from "hono-openapi"
 import { resolver, validator } from "hono-openapi/effect"
 import { ServicesRuntime } from "../../runtime/index.js"
-import { Branded, Helpers, ProjectWithRelationsSchema } from "../../schema/index.js"
+import { Branded, Helpers, paginationSchema, ProjectWithRelationsSchema } from "../../schema/index.js"
 import { ProjectServiceContext } from "../../services/project/indext.js"
 // import * as Errors from "../../types/error/link-errors.js"
 
@@ -34,7 +34,12 @@ const getByIdDocs = describeRoute({
   tags: ["Project"],
 })
 
-const getManyResponseSchema = S.Array(ProjectWithRelationsSchema.Schema.omit("deletedAt"))
+// const getManyResponseSchema = S.Array(ProjectWithRelationsSchema.Schema.omit("deletedAt"))
+const getManyResponseSchema = S.Struct({
+  data: S.Array(ProjectWithRelationsSchema.Schema.omit("deletedAt")),
+  pagination: paginationSchema.Schema,
+})
+
 
 const getManyDocs = describeRoute({
   responses: {
@@ -74,7 +79,6 @@ export function setupProjectGetRoutes() {
     const program = ProjectServiceContext.pipe(
       Effect.tap(() => Effect.log("start finding by Id Project")),
       Effect.andThen(svc => svc.findOneById(ProjectId)),
-      // Effect.andThen(b=>b),
       Effect.andThen(parseResponse),
       Effect.andThen(data => c.json(data, 200)),
       Effect.tap(() => Effect.log("test")),
@@ -101,8 +105,8 @@ export function setupProjectGetRoutes() {
       Effect.tap(() => Effect.log("start finding many Projects")),
       Effect.andThen(svc => svc.findManyPagination(limit, offset, page)),
       Effect.andThen(b => b),
-      Effect.andThen(({ data, pagination }) => 
-        parseResponse(data).pipe(Effect.map(parsedData => ({ data: parsedData, pagination })))
+      Effect.andThen(({ data, pagination }) =>
+        parseResponse({ data, pagination }).pipe(Effect.map(parsedData => ({ data: parsedData }))),
       ),
       Effect.andThen(data => c.json(data, 200)),
       Effect.tap(() => Effect.log("test")),
