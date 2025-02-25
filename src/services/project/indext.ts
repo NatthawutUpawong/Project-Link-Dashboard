@@ -1,3 +1,4 @@
+/* eslint-disable object-shorthand */
 /* eslint-disable perfectionist/sort-objects */
 import type { ProjectService } from "../../types/services/project.js"
 import { Context, Effect, Layer } from "effect"
